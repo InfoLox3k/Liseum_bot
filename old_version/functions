@@ -1,0 +1,202 @@
+import telebot
+# from update import keyboard_massive
+from telebot import types
+from telebot.types import InputMediaPhoto
+from token_data import *
+from message_text import *
+
+keyboard_massive = []
+text_to_analyse = []
+history_of_acts = []
+
+# False - state of existance of message, 0 - message id, 0 - chat id,
+message_sended = [[[False, 0, 0, 0],  # Rectangle
+                    [False, 0, 0, 0],  # Circle
+                   [False, 0, 0, 0],  # Circle Ln
+                  [False, 0, 0, 0],  # Circle Ln H
+                  [False, 0, 0, 0],  # Circle Ln Ks
+                   [False, 0, 0, 0],  # Circle OK
+                    [False, 0, 0, 0],  # Corner
+                    [False, 0, 0, 0],  # Corner PE
+                    [False, 0, 0, 0],  # Straight
+                    [False, 0, 0, 0],  # Triangle
+                    [False, 0, 0, 0],  # Triangle PR
+                    [False, 0, 0, 0],  # Triangle OS
+                    [False, 0, 0, 0]  # Triangle TY
+                  ]]
+
+# список с id пользователей
+ids_list = [0]
+
+# индексация нужного массива в message_sended
+geometry_keys = {"": None,
+            "Rectangle": 0,
+           "Circle": 1,
+           "Circle Ln": 2,
+           "Circle Ln H": 3,
+           "Circle Ln Ks": 4,
+           "Circle OK": 5,
+           "Corner": 6,
+           "Corner PE": 7,
+           "Straight": 8,
+           "Triangle": 9,
+           "Triangle PR": 10,
+           "Triangle OS": 11,
+           "Triangle TY": 12
+           }
+
+algebra_keys = {}
+
+physics_keys = {}
+
+bot = telebot.TeleBot(general_token)
+
+# Устанавливаем тайм-аут для всех запросов (например, 60 секунд)
+# from telebot import apihelper
+# apihelper.CONNECT_TIMEOUT = 120
+# apihelper.READ_TIMEOUT = 120
+
+# создание клавиатуры в сообщениях
+def inline_keyboard(text_and_data_list, end_text='',call_chat_id=0, msg='', media=''):
+    chat_inf = check_message(call_chat_id)
+    keyboard = types.InlineKeyboardMarkup()
+
+    print("idk")
+
+    global text_to_analyse
+
+    buttons_list = []
+    if not text_to_analyse:
+        text_to_analyse = ["None", "None", "None", "None", "None"]
+
+
+    for i in range(len(text_and_data_list)):
+        buttons_list.append(types.InlineKeyboardButton(text=text_and_data_list[i][0], callback_data=text_and_data_list[i][1]))
+
+    print(text_to_analyse[0])
+    if text_to_analyse[0] != 'None':
+        buttons_list.append(types.InlineKeyboardButton(text="назад", callback_data="BACK"))
+    keyboard.add(*buttons_list)
+
+    if end_text == '':
+        end_text = 'Выбери из этого списка то, что тебе нужно'
+
+    if media == '':
+        if msg != "only start" and msg != "":
+            bot.send_message(call_chat_id, text=f"*{msg}*\n\n{end_text}", parse_mode="Markdown", reply_markup=keyboard)
+        else:
+            bot.send_message(call_chat_id, text=end_text, reply_markup=keyboard)
+    else:
+        try:
+            with open(media, 'rb') as photo:
+                bot.send_photo(call_chat_id, photo=photo, caption=end_text, reply_markup=keyboard)
+        except Exception as e:
+            print(f"Ошибка при отправке: {e}")
+
+# сброс данных о сообщениях одного пользователя
+def list_clear(message):
+    global message_sended, geometry_keys, ids_list
+    user_id = message.chat.id
+
+    print(message_sended)
+    print(ids_list)
+
+    if user_id in ids_list:
+        id_index = ids_list.index(user_id)
+        del ids_list[id_index]
+        del message_sended[id_index]
+
+    print(message_sended)
+    print(ids_list)
+
+def look_nice(text):
+    def output():
+        print("------------------------------",
+              text,
+              "------------------------------")
+    return output()
+
+# проверка, есть ли отправленные сообщения
+def check_message(chat_id):
+    # если пользователь есть в системе
+    global message_sended
+    global ids_list
+
+    if chat_id in ids_list:
+        look_nice("YEAH")
+        chat_info = ids_list.index(chat_id)
+    else:
+        # если нет, то создаём такой элемент
+        message_sended.append([[False, 0, 0, 0],  # Rectangle
+                    [False, 0, 0, 0],  # Circle
+                   [False, 0, 0, 0],  # Circle Ln
+                  [False, 0, 0, 0],  # Circle Ln H
+                  [False, 0, 0, 0],  # Circle Ln Ks
+                   [False, 0, 0, 0],  # Circle OK
+                    [False, 0, 0, 0],  # Corner
+                    [False, 0, 0, 0],  # Corner PE
+                    [False, 0, 0, 0],  # Straight
+                    [False, 0, 0, 0],  # Triangle
+                    [False, 0, 0, 0],  # Triangle PR
+                    [False, 0, 0, 0],  # Triangle OS
+                    [False, 0, 0, 0]  # Triangle TY
+                  ])
+        ids_list.append(chat_id)
+        chat_info = ids_list.index(chat_id)
+        print('wow', ids_list)
+    return chat_info
+
+def message_layer(chat_id, new_text, info_type="", pic=''):
+    global message_sended, ids_list
+
+    chat_info = check_message(chat_id)
+    bot.send_message(chat_id, text=chat_id)
+
+    if info_type != "":
+        type_list = message_sended[chat_info][geometry_keys[info_type]]
+    else:
+        bot.send_message(chat_id, new_text, parse_mode="Markdown")
+        return
+    print(type_list)
+
+    if type_list[0] == False and type_list[1] == 0:
+        if pic == '':
+            try:
+                bot_message = bot.send_message(chat_id, text=new_text, parse_mode="Markdown")
+            except:
+                bot.delete_message(chat_id=chat_id, message_id=type_list[1])
+                bot_message = bot.send_message(chat_id, text=new_text, parse_mode="Markdown")
+                type_list[1] = bot_message.message_id
+                type_list[2] = chat_id
+        else:
+            bot_message = bot.send_photo(chat_id, photo=open(pic, 'rb'), caption=new_text, parse_mode="Markdown")
+        type_list[0] = True
+        type_list[1] = bot_message.message_id
+        type_list[2] = chat_id
+        message_sended[chat_info][geometry_keys[info_type]] = type_list
+
+    elif type_list[0] == True or type_list[1] != 0:
+        if pic == '':
+            try:
+                bot.edit_message_text(text=new_text, chat_id=chat_id, message_id=type_list[1], parse_mode="Markdown")
+            except:
+                bot.delete_message(chat_id=chat_id, message_id=type_list[1])
+                bot_message = bot.send_message(text=new_text, chat_id=chat_id, parse_mode="Markdown")
+                type_list[1] = bot_message.message_id
+                type_list[2] = chat_id
+        else:
+            new_media = InputMediaPhoto(
+                media=open(pic, 'rb'),
+                caption=new_text,
+                parse_mode="Markdown"
+            )
+            bot.edit_message_media(chat_id= chat_id,
+                                   message_id=type_list[1],
+                                   media=new_media)
+        message_sended[chat_info][geometry_keys[info_type]] = type_list
+
+    print(f"chat_info: {chat_info}")
+    print(f"info_type: {info_type}")
+    print(f"chat_id_state: {chat_id in ids_list}")
+    print(f"ids_list: {ids_list}")
+    print(f"chat_states: {message_sended[chat_info]}")
