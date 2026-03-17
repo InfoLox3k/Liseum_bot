@@ -1,0 +1,318 @@
+
+from functions import *
+from message_text import *
+
+# Указываем токен (не забудьте заменить на ваш токен)
+  # Замените на ваш токен
+keyboard_massive = []
+final_text = ''
+new_text = ''
+
+@bot.message_handler(content_types=['text'])
+def get_text_messages(message):
+    global final_text
+    global keyboard_massive
+    global anton
+
+    if message.text == "/start":
+        bot.send_message(message.from_user.id, "Привет, сейчас я покажу тебе мой каталог.")
+
+        keyboard_massive = [['ТРЕУГОЛЬНИК', 'Triangle'],
+                            ['ЧЕТЫРЁХУГОЛЬНИК', 'Geometry'],
+                            ['ОКРУЖНОСТЬ И КРУГ', 'Circle'],
+                            ['ПРЯМАЯ', 'Straight'],
+                            ['УГОЛ', 'Corner']]
+
+        print(message.chat.id)
+
+        list_clear(message)
+
+        final_text = 'Выбери нужную фигуру:'
+
+        inline_keyboard(keyboard_massive, final_text, message.from_user.id, "only start")
+
+    elif message.text == "/help":
+        bot.send_message(message.from_user.id, "Напиши /start")
+
+    elif message.text == "/stop_bot":
+        i = 0
+        for item in ids_list:
+            bot.send_message(ids_list[i], text="Увы, я отключаюсь до завтра. Спокойной ночи!")
+            i += 1
+        bot.stop_polling()
+
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_worker(call):
+    global anton
+    bot.answer_callback_query(call.id)
+
+    chat_id = call.message.chat.id
+
+    if call.data == "Geometry":
+        msg = "Сейчас я покажу, что я знаю о прямоугольнике и квадрате."
+
+        keyboard_massive = [['ОБЩЕЕ', 'General'],
+                            ['ПРЯМОУГОЛЬНИК', 'Rectangle'],
+                            ['КВАДРАТ', 'Square'],
+                            ['ПАРАЛЛЕЛОГРАММ', 'Parallelogramm'],
+                            ['ТРАПЕЦИЯ', 'Trapezoid'],
+                            ['РОМБ', 'Rhomb'],
+                            ['ДЕЛЬТОИД', 'Deltoid']
+                            ]
+        inline_keyboard(keyboard_massive, "Выбери нужную фигуру:", call.message.chat.id ,msg)
+
+    elif call.data == "General":
+        message_layer(call, geometry_text, "Rectangle", '4 четырёхугольник.png')
+
+    elif call.data == "Rectangle":
+        message_layer(call, rectangle_text, "Rectangle", '4 прямоугольник.png')
+
+    elif call.data == "Square":
+        message_layer(call, square_text, "Rectangle", '4 квадрат.jpg')
+
+    elif call.data == "Parallelogramm":
+        message_layer(call, parallelogramm_text, "Rectangle", '4 параллелограмм.jpg')
+
+    elif call.data == 'Trapezoid':
+        message_layer(call, trapezoid_text, "Rectangle", '4 виды_трапеций.png')
+
+    elif call.data == "Rhomb":
+        message_layer(call, rhomb_text, "Rectangle", '4 ромб.png')
+
+    elif call.data == 'Deltoid':
+        message_layer(call, deltoid_text, "Rectangle", '4 дельтоид.png')
+
+
+    # круг и окружность
+
+    elif call.data == 'Circle':
+        msg = "Сейчас я покажу, что я знаю о окружностях и кругах."
+
+        keyboard_massive = [['КРУГ', 'Circle Kr'],
+                            ['ОКРУЖНОСТЬ', 'Circle OK'],
+                            ['ХОРДА', 'Circle Ln']]
+        inline_keyboard(keyboard_massive, "Выбери окружность или круг:", call.message.chat.id, msg)
+
+    elif call.data == "Circle Kr":
+        message_layer(call, circle_kr_text, "Circle", '')
+
+    elif call.data == "Circle OK":
+        msg = "Что хочешь узнать об окружности?"
+        keyboard_massive = [['ОПРЕДЕЛЕНИЕ', 'Circle OK OPR'],
+                            ['ДИАМЕТР', 'Circle OK D'],
+                            ['РАДИУС', 'Circle OK R'],
+                            ['СВОЙСТВА', 'Circle OK SV']
+                            ]
+        inline_keyboard(keyboard_massive, 'Выбери, что тебе нужно:', call.message.chat.id, msg)
+
+    elif call.data == 'Circle OK OPR':
+        message_layer(call, circle_ok_OPR_text, "Circle OK", '')
+
+    elif call.data == 'Circle OK D':
+        message_layer(call, circle_ok_D_text, "Circle OK", '1 диаметр окружности.png')
+
+    elif call.data == 'Circle OK R':
+        message_layer(call, circle_ok_R_text, "Circle OK", '1 радиус окружности.png')
+
+    elif call.data == 'Circle OK SV':
+        message_layer(call, circle_ok_SV_text, "Circle OK", '')
+
+
+    elif call.data == 'Circle Ln':
+        keyboard_massive = [['ХОРДА', 'Circle Ln H'],
+                            ['ДУГА', 'Circle Ln Dg'],
+                            ['КАСАТЕЛЬНАЯ', 'Circle Ln Ks'],
+                            ]
+        inline_keyboard(keyboard_massive, 'Выбери, что тебе нужно:', call.message.chat.id, "Тут просто линии")
+
+    elif call.data == 'Circle Ln H':
+        keyboard_massive = [['ОПРЕДЕЛЕНИЕ', 'Circle Ln H OPR'],
+                            ['СВОЙСТВА', 'Circle Ln H SV'],
+                            ]
+        inline_keyboard(keyboard_massive, 'Выбери, что тебе нужно:', call.message.chat.id, "Тут про хорду")
+
+    elif call.data == 'Circle Ln H OPR':
+        message_layer(call, circle_ln_H_OPR_text, "Circle Ln H", '1 определение хорды.png')
+
+    elif call.data == 'Circle Ln H SV':
+        message_layer(call, circle_ln_H_SV_text, "Circle Ln H", '')
+
+
+    elif call.data == 'Circle Ln Dg':
+        message_layer(call, circle_ln_Dg_text, "Circle Ln", '1 определение дуги.png')
+
+
+    elif call.data == 'Circle Ln Ks':
+        keyboard_massive = [['ОПРЕДЕЛЕНИЕ', 'Circle Ln Ks OPR'],
+                            ['СВОЙСТВА', 'Circle Ln Ks SV'],
+                            ['ТЕОРЕМА', 'Circle Ln Ks TH']
+                            ]
+        inline_keyboard(keyboard_massive, 'Выбери, что тебе нужно:', call.message.chat.id, "Инфа про касательную линию")
+
+    elif call.data == 'Circle Ln Ks OPR':
+        message_layer(call, circle_ln_Ks_OPR_text, "Circle Ln Ks", '1 определение касательной.png')
+
+    elif call.data == 'Circle Ln Ks SV':
+        message_layer(call, circle_ln_Ks_SV_text, "Circle Ln Ks", '')
+
+    elif call.data == 'Circle Ln Ks TH':
+        message_layer(call, circle_ln_Ks_TH_text, "Circle Ln Ks", '')
+
+
+
+    elif call.data == "Straight":
+        msg = "Сейчас я покажу, что я знаю о прямых."
+
+        keyboard_massive = [['ПАРАЛЛЕЛЬНЫЕ', 'Straight Pa'],
+                            ['ПЕРПЕНДИКУЛЯРНЫЕ', 'Straight Pe']]
+        final_text = "Выбери тип прямой:"
+
+        inline_keyboard(keyboard_massive, final_text, call.message.chat.id, msg)
+
+    elif call.data == "Straight Pa":
+        message_layer(call, straight_PA_text, "Straight", '')
+
+    elif call.data == "Straight Pe":
+        message_layer(call, straight_Pe_text, "Straight", '')
+
+
+
+    elif call.data == "Corner":
+        msg = "Сейчас я покажу, что я знаю о углах."
+
+        keyboard_massive = [['ВЕРТЕКАЛЬНЫЕ УГЛЫ', 'Corner Ve'],
+                            ['СМЕЖНЫЕ УГЛЫ', 'Corner Sm'],
+                            ['ДВЕ ПРЯМЫЕ И СЕКУЩАЯ', 'Corner Pe']]
+
+        inline_keyboard(keyboard_massive, "Выбери тип угла:", call.message.chat.id, msg)
+
+    elif call.data == "Corner Ve":
+        message_layer(call, corner_Ve_text, "Corner", '2 вертикальные.png')
+
+    elif call.data == "Corner Sm":
+        message_layer(call, corner_Sm_text, "Corner", '2 смежные.png')
+
+    elif call.data == "Corner Pe":
+        msg = "Сейчас я покажу, что я знаю о пересечении двух прямых секущей."
+
+        keyboard_massive = [['Соответственные углы', 'Corner So'],
+                            ['накрест лежащие углы', 'Corner Na'],
+                            ['Односторонние углы', 'Corner Od']]
+
+        inline_keyboard(keyboard_massive, "Выбери тип угла:", call.message.chat.id, msg)
+
+    elif call.data == "Corner So":
+        message_layer(call, corner_So_text, "Corner PE", '2 соответственные.png')
+
+    elif call.data == "Corner Na":
+        message_layer(call, corner_Na_text, "Corner PE", '2 накрест лежащие.png')
+
+    elif call.data == "Corner Od":
+        message_layer(call, corner_Od_text, "Corner PE", '2 односторонние.png')
+
+
+
+
+    elif call.data == "Triangle":
+        msg = "Сейчас я покажу, что я знаю о треугольниках."
+
+        text_and_data_list = [['ПРЯМОУГОЛЬНЫЙ ТРЕУГОЛЬНИК', 'Triangle PR'],
+                              ['ОСТРОУГОЛЬНЫЙ ТРЕУГОЛЬНИК', 'Triangle OS'],
+                              ['ТУПОУГОЛЬНЫЙ ТРЕУГОЛЬНИК', 'Triangle TY']]
+
+        final_text = "Выбери тип треугольника:"
+
+        inline_keyboard(text_and_data_list, final_text, call.message.chat.id, msg)
+
+
+    elif call.data == "Triangle PR":
+        keyboard_massive = [['БИССЕКТРИСА', 'Triangle PrB'],
+                            ['МЕДИАНА', 'Triangle PrM'],
+                            ['ВЫСОТА', 'Triangle PrV'],
+                            ['ПРИЗНАКИ РАВЕНСТВА', 'Triangle PrR'],
+                            ['РАВНОБЕДРЕННОСТЬ', 'Triangle PrRB']]
+        final_text = "Выбери что ты хочешь узнать о прямоугольном треугольнике:"
+
+        inline_keyboard(keyboard_massive, final_text, call.message.chat.id, "")
+
+    elif call.data == "Triangle PrB":
+        message_layer(call, triangle_PrB_text, "Triangle PR", '')
+
+    elif call.data == "Triangle PrM":
+        message_layer(call, triangle_PrM_text, "Triangle PR", '')
+
+    elif call.data == "Triangle PrV":
+        message_layer(call, triangle_PrV_text, "Triangle PR", '')
+
+    elif call.data == "Triangle PrR":
+        message_layer(call, new_text, "Triangle PR", '')
+
+    elif call.data == "Triangle PrRB":
+        message_layer(call, new_text, "Triangle PR", '')
+
+
+
+    elif call.data == "Triangle OS":
+        msg = "Сейчас я покажу, что я знаю об остроугольных треугольных."
+
+        keyboard_massive = [['БИССИКТРИСА', 'Triangle OSB'],
+                            ['МЕДИАНА', 'Triangle OSM'],
+                            ['ВЫСОТА', 'Triangle OSV'],
+                            ['ПРИЗНАКИ РАВЕНСТВА', 'Triangle OSR'],
+                            ['РАВНОБЕДРЕННОСТЬ', 'Triangle OSRB'],
+                            ['РАВНОСТОРОННОСТЬ', 'Triangle OSRS']
+                            ]
+        inline_keyboard(keyboard_massive, "Выбери что ты хочешь узнать о остроугоьном  треугольнике:", call.message.chat.id, msg)
+
+    elif call.data == "Triangle OSB":
+        message_layer(call, triangle_OSB_text, "Triangle OS", '')
+
+    elif call.data == "Triangle OSM":
+        message_layer(call, triangle_OSM_text, "Triangle OS", '')
+
+    elif call.data == "Triangle OSV":
+        message_layer(call, triangle_OSV_text, "Triangle OS", '')
+
+    elif call.data == "Triangle OSR":
+        message_layer(call, triangle_OSR_text, "Triangle OS", '')
+
+    elif call.data == "Triangle OSRB":
+        message_layer(call, triangle_OSRB_text, "Triangle OS", '')
+
+    elif call.data == "Triangle OSRS":
+        message_layer(call, triangle_OSRS_text, "Triangle OS", '')
+
+
+    elif call.data == "Triangle TY":
+        msg = "Сейчас я покажу, что я знаю о тупогольных треугольных."
+
+        keyboard_massive = [['БИССИКТРИСА', 'Triangle TYB'],
+                            ['МЕДИАНА', 'Triangle TYM'],
+                            ['ВЫСОТА', 'Triangle TYV'],
+                            ['ПРИЗНАКИ РАВЕНСТВА', 'Triangle TYR'],
+                            ['РАВНОБЕДРЕННОСТЬ', 'Triangle TYRB']
+                            ]
+        inline_keyboard(keyboard_massive, "Выбери что ты хочешь узнать о тупоугоьном  треугольнике:", call.message.chat.id, msg)
+
+    elif call.data == "Triangle TYB":
+        message_layer(call, triangle_TYB_text, "Triangle TY", '')
+
+    elif call.data == "Triangle TYM":
+        message_layer(call, triangle_TYM_text, "Triangle TY", '')
+
+    elif call.data == "Triangle TYV":
+        message_layer(call, triangle_TYV_text, "Triangle TY", '')
+
+    elif call.data == "Triangle TYR":
+        message_layer(call, triangle_TYR_text, "Triangle TY", '')
+
+    elif call.data == "Triangle TYRB":
+        message_layer(call, new_text, "Triangle TY", '')
+
+    else:
+        bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
+        # Запускаем бота
+
+bot.polling(none_stop=True)
